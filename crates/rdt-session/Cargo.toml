@@ -1,0 +1,26 @@
+[package]
+name = "rdt-session"
+description = "Session orchestration: state machine, concurrency limits, reconnection, cancellation"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+rdt-types.workspace = true
+rdt-platform.workspace = true
+rdt-terminal.workspace = true
+rdt-ssh.workspace = true
+rdt-rdp.workspace = true
+rdt-config.workspace = true
+rdt-secrets.workspace = true
+rdt-logging.workspace = true
+
+tokio = { workspace = true, features = ["rt", "sync", "time", "macros"] }
+parking_lot.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true
