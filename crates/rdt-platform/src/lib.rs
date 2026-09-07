@@ -19,11 +19,12 @@ pub mod service;
 pub mod platform_impl;
 
 pub use crate::deps::{
-    probe_dependencies, DependencyId, DependencyReport, DependencyStatus, DependencySuite,
+    probe_dependencies, which, DependencyId, DependencyReport, DependencyStatus, DependencySuite,
 };
 pub use crate::info::{DistroInfo, OsFamily, PlatformInfo};
 pub use crate::paths::AppPaths;
-pub use crate::platform_impl::{restrict_dir_to_owner, restrict_to_owner};
+pub use crate::platform_impl::{hostname, restrict_dir_to_owner, restrict_to_owner};
 pub use crate::service::{
-    service_status, uninstall_service, ServiceInstallRequest, ServiceSpec, ServiceState,
+    install_service, service_status, uninstall_service, ServiceInstallRequest, ServiceSpec,
+    ServiceState,
 };

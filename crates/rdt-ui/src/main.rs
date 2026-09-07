@@ -12,8 +12,9 @@ use rdt_types::{ErrorCode, RdtError, RdtResult};
 
 /// Wires the application together and starts the window.
 fn main() -> ExitCode {
-    match rdt_logging::init(&rdt_logging::Options::default()) {
-        Ok(_) => {}
+    let paths = rdt_platform::AppPaths::detect();
+    match rdt_logging::init(&paths, &rdt_logging::LogConfig::default()) {
+        Ok(_handles) => {}
         Err(error) => eprintln!("cannot initialise logging: {error}"),
     }
 
