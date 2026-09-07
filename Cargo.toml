@@ -1,0 +1,196 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/rdt-types",
+    "crates/rdt-config",
+    "crates/rdt-secrets",
+    "crates/rdt-logging",
+    "crates/rdt-platform",
+    "crates/rdt-terminal",
+    "crates/rdt-ssh",
+    "crates/rdt-rdp",
+    "crates/rdt-session",
+    "crates/rdt-ui",
+    "crates/rdt-agent",
+    "crates/rdt-cli",
+]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.88"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/mylab12345/Remote-Desktop-Tool"
+authors = ["RDT contributors"]
+
+[workspace.dependencies]
+# --- internal ------------------------------------------------------------
+rdt-types = { path = "crates/rdt-types", version = "1.0.0" }
+rdt-config = { path = "crates/rdt-config", version = "1.0.0" }
+rdt-secrets = { path = "crates/rdt-secrets", version = "1.0.0" }
+rdt-logging = { path = "crates/rdt-logging", version = "1.0.0" }
+rdt-platform = { path = "crates/rdt-platform", version = "1.0.0" }
+rdt-terminal = { path = "crates/rdt-terminal", version = "1.0.0" }
+rdt-ssh = { path = "crates/rdt-ssh", version = "1.0.0" }
+rdt-rdp = { path = "crates/rdt-rdp", version = "1.0.0" }
+rdt-session = { path = "crates/rdt-session", version = "1.0.0" }
+rdt-ui = { path = "crates/rdt-ui", version = "1.0.0" }
+rdt-agent = { path = "crates/rdt-agent", version = "1.0.0" }
+
+# --- async runtime -------------------------------------------------------
+tokio = { version = "1", default-features = false, features = [
+    "rt",
+    "rt-multi-thread",
+    "macros",
+    "sync",
+    "time",
+    "io-util",
+    "io-std",
+    "net",
+    "process",
+    "signal",
+    "fs",
+] }
+tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
+futures = { version = "0.3", default-features = false, features = ["std", "async-await"] }
+
+# --- errors / serialisation ---------------------------------------------
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.9"
+
+# --- crypto --------------------------------------------------------------
+zeroize = { version = "1", features = ["derive"] }
+argon2 = "0.5"
+chacha20poly1305 = "0.10"
+rand = "0.9"
+sha2 = "0.11"
+subtle = "2"
+base64 = "0.22"
+hex = "0.4"
+
+# --- observability -------------------------------------------------------
+libc = "0.2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", default-features = false, features = [
+    "env-filter",
+    "fmt",
+    "json",
+    "std",
+    "ansi",
+] }
+tracing-appender = "0.2"
+log = "0.4"
+
+# --- ssh -----------------------------------------------------------------
+russh = { version = "0.63", default-features = false, features = [
+    "flate2",
+    "ring",
+    "rsa",
+] }
+russh-sftp = { version = "2", default-features = false }
+vte = { version = "0.15", default-features = false, features = ["std", "ansi"] }
+
+# --- rdp -----------------------------------------------------------------
+ironrdp-connector = { version = "0.10", default-features = false }
+ironrdp-session = { version = "0.11", default-features = false }
+ironrdp-pdu = { version = "0.9", default-features = false }
+ironrdp-graphics = { version = "0.9", default-features = false }
+ironrdp-input = { version = "0.7", default-features = false }
+ironrdp-cliprdr = { version = "0.7", default-features = false }
+ironrdp-displaycontrol = { version = "0.8", default-features = false }
+ironrdp-tokio = { version = "0.10", default-features = false }
+ironrdp-tls = { version = "0.2", default-features = false, features = ["rustls-ring"] }
+ironrdp-svc = { version = "0.8", default-features = false }
+tokio-rustls = { version = "0.26", default-features = false, features = [
+    "ring",
+    "logging",
+    "tls12",
+] }
+rustls = { version = "0.23", default-features = false, features = [
+    "ring",
+    "logging",
+    "std",
+    "tls12",
+] }
+rustls-pki-types = { version = "1", features = ["std"] }
+webpki-roots = "1"
+
+# --- ui ------------------------------------------------------------------
+eframe = { version = "0.36", default-features = false, features = [
+    "glow",
+    "default_fonts",
+    "links",
+    "accesskit",
+    "wayland",
+    "x11",
+] }
+egui = { version = "0.36", default-features = false, features = ["default_fonts"] }
+
+# --- misc ----------------------------------------------------------------
+time = { version = "0.3", default-features = false, features = [
+    "std",
+    "formatting",
+    "parsing",
+    "macros",
+] }
+bitflags = "2"
+bytes = "1"
+parking_lot = "0.12"
+
+# Windows-only crates.  Referenced from the per-crate `[target.'cfg(windows)']`
+# sections so that they are only ever resolved for Windows builds.
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Security_Cryptography",
+    "Win32_System_Services",
+    "Win32_System_Threading",
+    "Win32_System_Console",
+    "Win32_System_RemoteDesktop",
+    "Win32_NetworkManagement_IpHelper",
+    "Win32_Networking_WinSock",
+] }
+windows-service = "0.8"
+
+[workspace.lints.rust]
+missing_debug_implementations = "warn"
+unsafe_code = "deny"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "warn"
+expect_used = "allow"
+dbg_macro = "warn"
+todo = "deny"
+unimplemented = "deny"
+# Pedantic lints that do not pay for themselves in an application codebase.
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+must_use_candidate = "allow"
+module_name_repetitions = "allow"
+doc_markdown = "allow"
+cast_possible_truncation = "allow"
+cast_sign_loss = "allow"
+cast_precision_loss = "allow"
+similar_names = "allow"
+too_many_lines = "allow"
+too_many_arguments = "allow"
+struct_excessive_bools = "allow"
+fn_params_excessive_bools = "allow"
+option_if_let_else = "allow"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+opt-level = 3
+
+[profile.release-debug]
+inherits = "release"
+strip = "none"
+debug = true

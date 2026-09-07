@@ -1,0 +1,17 @@
+[package]
+name = "rdt-terminal"
+description = "Dependency free VT100/xterm terminal emulator core (screen model, parser, input encoding)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+serde.workspace = true
+
+[dev-dependencies]
+
+[lints]
+workspace = true

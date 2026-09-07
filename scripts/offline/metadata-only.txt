@@ -1,0 +1,39 @@
+# Crates that cargo must be able to *resolve* but that no enabled feature ever
+# activates, so they are never compiled.  They are vendored as manifest-only
+# entries (see scripts/offline/vendor.py) to keep the vendor directory and the
+# offline build reproducible without dragging in inactive dependency branches.
+#
+# GUI backends we do not enable (we build the glow/OpenGL backend):
+wgpu
+egui-wgpu
+egui_inspection
+naga
+# Crypto provider we do not enable (requires cmake at build time):
+aws-lc-rs
+aws-lc-sys
+cmake
+# HTTP / TLS backends we do not enable:
+reqwest
+tokio-native-tls
+native-tls
+# Optional RDP codecs we do not enable:
+zstd-safe
+qoicoubeh
+# Optional legacy SSH algorithms we do not enable:
+yasna
+des
+
+# Windows-only crates: resolved for the universal lock file but never compiled
+# on a Linux or macOS build, and their C-free binding crates are not in the
+# offline mirror.
+windows-service
+windows-targets
+windows_x86_64_gnu
+windows_x86_64_gnullvm
+windows_x86_64_msvc
+windows_aarch64_gnullvm
+windows_aarch64_msvc
+windows_i686_gnu
+windows_i686_gnullvm
+windows_i686_msvc
+widestring

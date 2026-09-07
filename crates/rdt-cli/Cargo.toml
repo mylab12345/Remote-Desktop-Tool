@@ -1,0 +1,34 @@
+[package]
+name = "rdt-cli"
+description = "The `rdt` command line entry point"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "rdt"
+path = "src/main.rs"
+
+[dependencies]
+rdt-types.workspace = true
+rdt-platform.workspace = true
+rdt-config.workspace = true
+rdt-secrets.workspace = true
+rdt-logging.workspace = true
+rdt-terminal.workspace = true
+rdt-ssh.workspace = true
+rdt-rdp.workspace = true
+rdt-session.workspace = true
+rdt-agent.workspace = true
+rdt-ui.workspace = true
+
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "sync"] }
+serde_json.workspace = true
+parking_lot.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,23 @@
+[package]
+name = "rdt-platform"
+description = "Platform abstraction: OS detection, dependency probing, service integration"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+rdt-types.workspace = true
+serde.workspace = true
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys.workspace = true
+windows-service.workspace = true
+
+[lints]
+workspace = true

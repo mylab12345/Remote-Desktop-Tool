@@ -1,0 +1,41 @@
+[package]
+name = "rdt-ui"
+description = "Desktop interface: egui/eframe application with all eight pages"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "rdt-gui"
+path = "src/main.rs"
+
+[dependencies]
+rdt-types.workspace = true
+rdt-platform.workspace = true
+rdt-config.workspace = true
+rdt-secrets.workspace = true
+rdt-logging.workspace = true
+rdt-terminal.workspace = true
+rdt-ssh.workspace = true
+rdt-rdp.workspace = true
+rdt-session.workspace = true
+
+egui.workspace = true
+eframe = { workspace = true, default-features = false, features = [
+    "glow",
+    "default_fonts",
+    "links",
+    "accesskit",
+    "wayland",
+    "x11",
+] }
+image = { version = "0.25", default-features = false, features = ["png"] }
+parking_lot.workspace = true
+tracing.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "sync", "macros"] }
+
+[lints]
+workspace = true

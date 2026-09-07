@@ -1,0 +1,41 @@
+[package]
+name = "rdt-rdp"
+description = "Embedded RDP client: IronRDP session, TLS validation, framebuffer, input, clipboard"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+rdt-types.workspace = true
+rdt-platform.workspace = true
+
+ironrdp-connector.workspace = true
+ironrdp-session.workspace = true
+ironrdp-tokio.workspace = true
+ironrdp-pdu.workspace = true
+ironrdp-graphics.workspace = true
+ironrdp-svc.workspace = true
+ironrdp-displaycontrol.workspace = true
+ironrdp-cliprdr.workspace = true
+ironrdp-input.workspace = true
+ironrdp-tls.workspace = true
+
+tokio = { workspace = true, features = ["net", "io-util", "time", "sync", "macros"] }
+tokio-rustls.workspace = true
+rustls.workspace = true
+webpki-roots.workspace = true
+futures.workspace = true
+bytes.workspace = true
+sha2.workspace = true
+hex.workspace = true
+parking_lot.workspace = true
+tracing.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows-sys.workspace = true
+
+[lints]
+workspace = true

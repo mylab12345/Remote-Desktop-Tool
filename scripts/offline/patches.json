@@ -1,0 +1,18 @@
+{
+  "_comment": [
+    "Substitutions applied to vendored crate sources when rebuilding the vendor",
+    "directory without registry access.  Every entry is a plain text replacement",
+    "in one file of one crate, and each one exists solely to relax a minimum",
+    "version bound that the offline mirror cannot satisfy; none of them changes",
+    "compiled behaviour.  A normal `cargo build` against crates.io never sees",
+    "these patches."
+  ],
+  "syn 2.0.90": [
+    {
+      "file": "Cargo.toml",
+      "old": "[dependencies.proc-macro2]\nversion = \"1.0.91\"",
+      "new": "[dependencies.proc-macro2]\nversion = \"1.0.89\"",
+      "reason": "the offline mirror only has proc-macro2 1.0.89; syn 2.0.90 uses no API added in 1.0.90/1.0.91"
+    }
+  ]
+}
