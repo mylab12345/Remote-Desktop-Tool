@@ -228,17 +228,22 @@ fn config(action: &str) -> RdtResult<ExitCode> {
 
 fn service(action: &str) -> RdtResult<ExitCode> {
     let spec = rdt_platform::ServiceSpec::default();
+    let paths = rdt_platform::AppPaths::detect();
     match action {
         "install" => {
-            rdt_platform::install_service(&spec)?;
+            let request = rdt_platform::ServiceInstallRequest {
+                spec: spec.clone(),
+                paths,
+            };
+            rdt_platform::install_service(&request)?;
             println!("the {} service was installed", spec.name);
         }
         "uninstall" => {
-            rdt_platform::uninstall_service(&spec)?;
+            rdt_platform::uninstall_service(&spec, &paths)?;
             println!("the {} service was removed", spec.name);
         }
         "status" => {
-            println!("{}", rdt_platform::service_status(&spec)?);
+            println!("{:?}", rdt_platform::service_status(&spec, &paths)?);
         }
         other => {
             return Err(RdtError::new(

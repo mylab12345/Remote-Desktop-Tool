@@ -29,6 +29,9 @@ use tracing_subscriber::Layer;
 use crate::buffer::LogBuffer;
 use crate::redact_writer::RedactingWriter;
 
+pub use crate::buffer::{Level, LogBuffer, LogEntry};
+pub use crate::redact_writer::RedactingWriter as PublicRedactingWriter;
+
 /// Logging configuration.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LogConfig {

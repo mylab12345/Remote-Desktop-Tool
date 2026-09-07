@@ -620,7 +620,12 @@ fn map_session(error: session::CustomError) -> RdtError {
 
 /// The machine name announced to the server (never contains user data).
 fn client_name() -> String {
-    rdt_platform::hostname().unwrap_or_else(|| "rdt-client".to_owned())
+    let name = rdt_platform::hostname();
+    if name.trim().is_empty() {
+        "rdt-client".to_owned()
+    } else {
+        name
+    }
 }
 
 fn client_dir() -> String {
