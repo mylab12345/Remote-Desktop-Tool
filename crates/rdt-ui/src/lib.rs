@@ -193,7 +193,53 @@ impl App {
     }
 }
 
-/// Starts the application.
+/// Builds the shared state from the on-disk configuration and starts the GUI.
+///
+/// Both the `rdt-gui` binary and `rdt` (with no subcommand) call this, so there
+/// is exactly one place where the application is wired together.
+///
+/// # Errors
+///
+/// Returns a typed error when the configuration cannot be loaded or the window
+/// cannot be created.
+pub fn run_default() -> rdt_types::RdtResult<()> {
+    use rdt_types::{ErrorCode, RdtError};
+
+    let config = match rdt_config::ConfigStore::load_default() {
+        Ok(config) => Arc::new(config),
+        Err(rdt_config::LoadError::Missing) => Arc::new(rdt_config::ConfigStore::in_memory()),
+        Err(rdt_config::LoadError::Failed(error)) => return Err(error),
+    };
+    let paths = rdt_platform::AppPaths::detect();
+    let audit = Arc::new(rdt_logging::audit::AuditLog::open(paths.audit_file()).unwrap_or_else(|error| {
+        eprintln!("cannot open the audit log: {error}");
+        rdt_logging::audit::AuditLog::null()
+    }));
+    let settings = config.settings();
+    let sessions = rdt_session::SessionManager::new(
+        rdt_session::ManagerPolicy {
+            max_concurrent: settings.session.max_concurrent_sessions,
+            audit: settings.session.audit_connections,
+            ..rdt_session::ManagerPolicy::default()
+        },
+        audit,
+    )?;
+    let state = AppState {
+        config,
+        sessions,
+        vault: Arc::new(Mutex::new(None)),
+        logs: Arc::new(Mutex::new(rdt_logging::LogBuffer::new(1024))),
+        commands: Arc::new(Mutex::new(Vec::new())),
+        terminals: Arc::new(Mutex::new(std::collections::HashMap::new())),
+        framebuffers: Arc::new(Mutex::new(std::collections::HashMap::new())),
+        status: Arc::new(Mutex::new("ready".to_owned())),
+    };
+    run(state).map_err(|error| {
+        RdtError::new(ErrorCode::Platform, format!("cannot open the window: {error}"))
+    })
+}
+
+/// Starts the application with an already built state.
 ///
 /// # Errors
 ///

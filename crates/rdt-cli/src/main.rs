@@ -151,7 +151,7 @@ pub fn run(arguments: &[String]) -> RdtResult<ExitCode> {
         Invocation::Ssh(profile) => connect(profile, rdt_types::Protocol::Ssh),
         Invocation::Rdp(profile) => connect(profile, rdt_types::Protocol::Rdp),
         Invocation::Agent => agent(),
-        Invocation::Gui => Ok(rdt_ui::main().into()),
+        Invocation::Gui => rdt_ui::run_default().map(|()| ExitCode::SUCCESS),
     }
 }
 
