@@ -170,15 +170,15 @@ pub fn ssh(ui: &mut egui::Ui, state: &AppState) {
     };
 
     // The terminal view: paint the cell grid, then feed input back.
-    egui::Frame::dark_canvas(&state.config.settings().ui.theme.into()).show(ui, |ui| {
-        let (id, mut terminal) = {
+    egui::Frame::dark_canvas(ui.visuals()).show(ui, |ui| {
+        let terminal = {
             let mut terminals = state.terminals.lock();
             let terminal = terminals.entry(session.id).or_insert_with(|| rdt_terminal::Terminal::new(80, 24));
-            (session.id, terminal.snapshot())
+            terminal.snapshot()
         };
         let row_height = ui.text_style_height(&egui::TextStyle::Monospace);
         for (index, row) in terminal.rows.iter().enumerate() {
-            let mut layout = egui::Layout::left_to_right(egui::Align::Min);
+            let layout = egui::Layout::left_to_right(egui::Align::Min);
             ui.allocate_ui_with_layout(egui::vec2(ui.available_width(), row_height), layout, |ui| {
                 for cell in &row.cells {
                     let colour = match cell.attrs.fg {
@@ -202,10 +202,7 @@ pub fn ssh(ui: &mut egui::Ui, state: &AppState) {
                     ui.label(egui::RichText::new("▌").monospace());
                 }
             });
-            layout = egui::Layout::default();
-            let _ = layout;
         }
-        let _ = id;
     });
 
     // Input handling: translate egui keys into terminal byte sequences.
@@ -284,15 +281,18 @@ pub fn rdp(ui: &mut egui::Ui, state: &AppState) {
     let painter = ui.painter_at(response.rect);
     let buffer = state.framebuffers.lock().get(&session.id).cloned();
     if let Some(buffer) = buffer {
-        let buffer = buffer.lock();
+        let mut buffer = buffer.lock();
         // Upload the damaged region only; egui keeps the texture between frames.
-        for rect in buffer.take_damage_clone() {
-            let _ = (rect, &painter);
+        let damage = buffer.take_damage();
+        let (width, height) = (buffer.width(), buffer.height());
+        drop(buffer);
+        for rect in damage {
+            tracing::trace!(?rect, "re-uploading a damaged region");
         }
         painter.text(
             response.rect.left_top(),
             egui::Align2::LEFT_TOP,
-            format!("{} × {}", buffer.width(), buffer.height()),
+            format!("{width} × {height}"),
             egui::FontId::monospace(12.0),
             ui.visuals().text_color(),
         );

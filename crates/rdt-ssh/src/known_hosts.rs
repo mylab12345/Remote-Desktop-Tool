@@ -108,7 +108,7 @@ pub struct KnownHostEntry {
 impl KnownHostEntry {
     /// Parses one `known_hosts` line.
     ///
-    /// Returns `None` for blank lines and comments.
+    /// Returns `Ok(None)` for blank lines and comments.
     ///
     /// # Errors
     ///
@@ -118,17 +118,36 @@ impl KnownHostEntry {
         if trimmed.is_empty() || trimmed.starts_with('#') {
             return Ok(None);
         }
-        let mut fields = trimmed.split_whitespace();
-        let first = fields.next().ok_or_else(|| malformed(number))?;
 
-        let (marker, patterns_field) = match first {
-            "@cert-authority" => (Marker::CertAuthority, fields.next().ok_or_else(|| malformed(number))?),
-            "@revoked" => (Marker::Revoked, fields.next().ok_or_else(|| malformed(number))?),
-            other => (Marker::None, other),
+        let mut fields = trimmed.split_whitespace();
+        let first = match fields.next() {
+            Some(value) => value,
+            None => return Ok(None),
         };
 
-        let key_type = fields.next().ok_or_else(|| malformed(number))?.to_owned();
-        let encoded = fields.next().ok_or_else(|| malformed(number))?.to_owned();
+        let marker = match first {
+            "@cert-authority" => Marker::CertAuthority,
+            "@revoked" => Marker::Revoked,
+            _ => Marker::None,
+        };
+
+        let patterns_field = if marker == Marker::None {
+            first
+        } else {
+            match fields.next() {
+                Some(value) => value,
+                None => return Err(malformed(number)),
+            }
+        };
+
+        let key_type = match fields.next() {
+            Some(value) => value.to_owned(),
+            None => return Err(malformed(number)),
+        };
+        let encoded = match fields.next() {
+            Some(value) => value,
+            None => return Err(malformed(number)),
+        };
         let comment = fields.collect::<Vec<_>>().join(" ");
 
         let key = base64::engine::general_purpose::STANDARD
@@ -145,7 +164,7 @@ impl KnownHostEntry {
             key,
             comment,
             line: number,
-        })
+        }))
     }
 
     /// True when this entry applies to `host` (respecting `!` negations).

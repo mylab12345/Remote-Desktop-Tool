@@ -26,6 +26,7 @@ hmac = "0.12"
 subtle.workspace = true
 parking_lot.workspace = true
 tracing.workspace = true
+async-trait = "0.1"
 
 [target.'cfg(unix)'.dependencies]
 libc.workspace = true

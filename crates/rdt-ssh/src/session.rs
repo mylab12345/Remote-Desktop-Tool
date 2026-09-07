@@ -10,8 +10,8 @@ use russh::{Channel, ChannelMsg};
 use tokio::sync::{mpsc, oneshot};
 
 use rdt_types::{
-    AuthMethod, CredentialSource, ErrorCode, HostKeyPolicy, PrivateKeyAuth, Protocol, RdtError,
-    RdtResult, Secret,
+    AuthMethod, CredentialSource, ErrorCode, HostKeyPolicy, PrivateKeyAuth, RdtError, RdtResult,
+    Secret,
 };
 
 use crate::handler::{ClientHandler, HostKeyDecision, Prompt, SessionEvent};
@@ -75,30 +75,34 @@ pub struct SshConnection {
 }
 
 impl SshConnection {
-    /// Builds a connection description from a stored profile.
-    pub fn from_profile(
-        profile: &rdt_config::ConnectionProfile,
+    /// Builds a connection description from its parts.
+    ///
+    /// The mapping from a stored profile lives in `rdt-session`, so this crate
+    /// stays independent of the configuration layer.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        host: impl Into<String>,
+        port: u16,
+        username: impl Into<String>,
         auth: AuthMethod,
+        options: &SshOptions,
+        command: SshCommand,
         size: TerminalSize,
     ) -> Self {
-        let ssh = &profile.ssh;
         Self {
-            host: profile.endpoint.host.clone(),
-            port: profile.endpoint.port,
-            username: ssh.username.clone(),
-            host_key_policy: ssh.host_key_policy,
-            known_hosts_path: ssh.known_hosts.clone(),
+            host: host.into(),
+            port,
+            username: username.into(),
+            host_key_policy: options.host_key_policy,
+            known_hosts_path: options.known_hosts.clone(),
             auth,
-            command: match &ssh.command {
-                Some(command) => SshCommand::Command(command.clone()),
-                None => SshCommand::InteractiveShell,
-            },
+            command,
             size,
-            term: ssh.terminal.term.clone(),
-            keepalive_secs: ssh.keepalive_secs,
-            connect_timeout: Duration::from_secs(ssh.connect_timeout_secs.max(1)),
-            compression: ssh.compression,
-            environment: ssh.environment.clone(),
+            term: options.terminal.term.clone(),
+            keepalive_secs: options.keepalive_secs,
+            connect_timeout: Duration::from_secs(options.connect_timeout_secs.max(1)),
+            compression: options.compression,
+            environment: options.environment.clone(),
             agent_socket: None,
         }
     }
@@ -605,22 +609,26 @@ mod tests {
     }
 
     #[test]
-    fn profile_conversion_keeps_the_endpoint() {
-        let mut profile = rdt_config::ConnectionProfile::new(
-            "build",
+    fn a_connection_built_from_options_keeps_its_policy() {
+        let mut options = SshOptions::default();
+        options.connect_timeout_secs = 7;
+        options.compression = true;
+        let connection = SshConnection::new(
             "build.example.com",
             2222,
-            Protocol::Ssh,
+            "ci",
+            AuthMethod::default(),
+            &options,
+            SshCommand::Command("make".to_owned()),
+            TerminalSize::default(),
         );
-        profile.ssh.username = "ci".to_owned();
-        profile.ssh.command = Some("make".to_owned());
-        let connection =
-            SshConnection::from_profile(&profile, AuthMethod::default(), TerminalSize::default());
         assert_eq!(connection.host, "build.example.com");
         assert_eq!(connection.port, 2222);
         assert_eq!(connection.username, "ci");
         assert_eq!(connection.command, SshCommand::Command("make".to_owned()));
         assert_eq!(connection.host_key_policy, HostKeyPolicy::Strict);
+        assert!(connection.compression);
+        assert_eq!(connection.connect_timeout, Duration::from_secs(7));
     }
 
     #[test]

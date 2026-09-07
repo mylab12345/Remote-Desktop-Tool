@@ -100,7 +100,7 @@ impl ClientHandler {
             prompts,
             events,
             channels: Arc::new(Mutex::new(VecDeque::new())),
-            accepted_fingerprint: Arc::new(None)),
+            accepted_fingerprint: Arc::new(Mutex::new(None)),
         }
     }
 

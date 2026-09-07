@@ -12,14 +12,11 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use ironrdp::connector::{self, ClientConnector, ConnectionResult, DesktopSize};
-use ironrdp::displaycontrol::DisplayControlClient;
-use ironrdp::input::KeyboardEvent;
-use ironrdp::pdu::geometry::InclusiveRectangle;
-use ironrdp::session::{self, ActiveStage, ActiveStageOutput, FastPathInputEvent};
-use ironrdp::svc::{ChannelFlags, StaticChannelSet};
-use ironrdp::tokio::TokioNetworkClient;
-use ironrdp_tls::upgrade;
+use ironrdp_connector::{self, ClientConnector, ConnectionResult, DesktopSize};
+use ironrdp_displaycontrol::DisplayControlClient;
+use ironrdp_pdu::input::fast_path::FastPathInputEvent;
+use ironrdp_session::{self, ActiveStage, ActiveStageOutput};
+use ironrdp_tokio::TokioNetworkClient;
 use parking_lot::Mutex;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpStream;
@@ -265,9 +262,9 @@ impl RdpSession {
 
         let mut connector = ClientConnector::new(config)
             .with_static_channel(DisplayControlClient::new())
-            .with_static_channel(
-                ironrdp::cliprdr::client::CliprdrClient::new(Box::new(CliprdrBackend::new())),
-            );
+            .with_static_channel(ironrdp_cliprdr::client::CliprdrClient::new(Box::new(
+                CliprdrBackend::new(),
+            )));
 
         let negotiated = tokio::time::timeout(
             target.connect_timeout,
@@ -561,7 +558,9 @@ async fn apply_output(
 
 /// Converts an input event into the wire representation.
 fn encode_input(input: RdpInput) -> Option<FastPathInputEvent> {
-    use ironrdp::pdu::input::fast_path::{FastPathInputEvent as Event, KeyboardFlags, PointerFlags};
+    use ironrdp_pdu::input::fast_path::{
+    FastPathInputEvent as Event, KeyboardFlags, PointerFlags,
+};
 
     Some(match input {
         RdpInput::Key { scancode, pressed, extended } => {
