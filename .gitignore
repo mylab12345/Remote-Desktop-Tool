@@ -2,3 +2,6 @@
 /dist/out
 /vendor
 *.log
+
+# gotool build output (rebuilt automatically by ./update.sh)
+/bin/

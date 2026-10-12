@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# post-commit hook — automatically rebuild the gotool binary whenever
+# new code changes are committed to this repository.
+#
+set -uo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+UPDATE_SCRIPT="$REPO_ROOT/update.sh"
+
+if [ -x "$UPDATE_SCRIPT" ]; then
+    # Rebuild quietly; log to .git/gotool-update.log so commits aren't noisy.
+    LOG="$REPO_ROOT/.git/gotool-update.log"
+    {
+        echo "--- $(date -u +'%Y-%m-%dT%H:%M:%SZ') post-commit rebuild ---"
+        "$UPDATE_SCRIPT"
+    } >>"$LOG" 2>&1 || echo "gotool rebuild failed (see $LOG)" >&2
+fi
+
+exit 0

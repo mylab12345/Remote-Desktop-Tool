@@ -148,6 +148,27 @@ impl RdtError {
         self
     }
 
+    /// Adds a labelled context line (`"path: /home/alice/.ssh/id_ed25519"`),
+    /// used by crates that want to attach structured details to a failure.
+    pub fn with_context(self, label: &str, value: impl Into<String>) -> Self {
+        self.context(format!("{label}: {}", value.into()))
+    }
+
+    /// The recorded context lines, most recently added last.
+    pub fn contexts(&self) -> &[String] {
+        &self.context
+    }
+
+    /// Returns the value part of the first context line recorded under
+    /// `label`, i.e. the inverse of [`Self::with_context`].
+    pub fn context_value(&self, label: &str) -> Option<&str> {
+        let prefix = format!("{label}: ");
+        self.context
+            .iter()
+            .find(|line| line.starts_with(&prefix))
+            .map(|line| &line[prefix.len()..])
+    }
+
     /// The error classification.
     pub fn code(&self) -> ErrorCode {
         self.code
