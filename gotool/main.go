@@ -35,6 +35,16 @@ func main() {
 	}
 
 	switch args[0] {
+	case "connect":
+		cmdConnect(args[1:])
+	case "new":
+		cmdNew(args[1:])
+	case "list", "ls":
+		cmdList()
+	case "edit":
+		cmdEdit(args[1:])
+	case "delete", "rm":
+		cmdDelete(args[1:])
 	case "version":
 		fmt.Printf("gotool %s (commit %s, built %s)\n", version, commit, buildDate)
 	case "status":
@@ -57,14 +67,36 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprint(os.Stderr, `gotool - repository helper utility
+	fmt.Fprint(os.Stderr, `gotool - MobaXterm-style session manager & remote shell launcher
 
-Commands:
+Remote access:
+  connect <name|target> [cmd...]   Open SSH shell / launch RDP / run remote cmd
+                                   target: [[user@]host[:port]] for ad-hoc SSH
+  new <name> --type T --host H     Save a session (T=ssh|rdp|sftp|scp)
+        [--port P] [--user U] [--password P | --ask-password] [--key PATH]
+        [--res WxH] [--scale N] [--note TEXT]
+  list                             Show saved sessions grouped by type
+  edit <name> [flags]              Update a saved session
+  delete <name>                    Remove a saved session
+
+Session vault: ~/.gotool/sessions (override with GOTOOL_SESSIONS_DIR).
+Passwords are stored obfuscated; set GOTOOL_VAULT_KEY to bind the vault
+to a secret passphrase.
+
+Repository helpers:
   version          Print build information (version, commit, build date)
   status           Show git working-tree status of the repository root
   diff [ref]       Show files changed since ref (default: HEAD)
   info             Show information about the repository layout
   help             Show this help message
+
+Examples:
+  gotool new web01 --type ssh --host 10.0.0.5 --user deploy --ask-password
+  gotool new lab-pc --type rdp --host 192.168.1.50 --user alice --res 1920x1080
+  gotool connect web01
+  gotool connect web01 uptime
+  gotool connect root@db.internal:2222
+  gotool list
 `)
 }
 
